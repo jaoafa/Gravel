@@ -1,0 +1,8 @@
+name: Gravel
+version: ${project.version}
+main: org.jaoafa.gravel.Main
+api-version: 1.16
+commands:
+  loadplugin:
+    description: プラグインをクローン・ビルドし、リロードします。
+    usage: '/loadplugin'
