@@ -54,6 +54,7 @@ public class Cmd_LoadPlugin extends BukkitRunnable implements CommandExecutor {
             }
             sendMessage(sender, "タスクを終了します。");
             task.cancel();
+            this.cancel();
             task = null;
             return true;
         }
@@ -69,8 +70,8 @@ public class Cmd_LoadPlugin extends BukkitRunnable implements CommandExecutor {
             branch = args[2];
         }
 
-        if(task != null && !task.isCancelled()){
-            sendMessage(sender, "別の処理が動作しているようです。");
+        if(task != null && !task.isCancelled() && !this.isCancelled()){
+            sendMessage(sender, "別の処理が動作しているようです。強制終了は /loadplugin stop で行えます。 ");
             return true;
         }
 
@@ -258,14 +259,14 @@ public class Cmd_LoadPlugin extends BukkitRunnable implements CommandExecutor {
             String url = String.format("https://api.github.com/repos/%s/%s", user, repo);
             OkHttpClient client = new OkHttpClient();
             Request request = new Request.Builder().url(url).get().build();
-            Response response = client.newCall(request).execute();
-            if (response.code() != 200) {
-                sendMessage(sender, String.format("リポジトリ情報を取得できませんでした: %d", response.code()));
-                return null;
+            JSONObject obj;
+            try (Response response = client.newCall(request).execute()) {
+                if (response.code() != 200) {
+                    sendMessage(sender, String.format("リポジトリ情報を取得できませんでした: %d", response.code()));
+                    return null;
+                }
+                obj = new JSONObject(Objects.requireNonNull(response.body()).string());
             }
-            JSONObject obj = new JSONObject(Objects.requireNonNull(response.body()).string());
-            response.close();
-
             return obj;
         }catch(IOException e){
             sendMessage(sender, String.format("リポジトリ情報を取得できませんでした: %s", e.getMessage()));
@@ -278,13 +279,14 @@ public class Cmd_LoadPlugin extends BukkitRunnable implements CommandExecutor {
             String url = String.format("https://api.github.com/repos/%s/%s/branches/%s", user, repo, branch);
             OkHttpClient client = new OkHttpClient();
             Request request = new Request.Builder().url(url).get().build();
-            Response response = client.newCall(request).execute();
-            if (response.code() != 200) {
-                sendMessage(sender, String.format("ブランチ情報を取得できませんでした: %d", response.code()));
-                return null;
+            JSONObject obj;
+            try (Response response = client.newCall(request).execute()) {
+                if (response.code() != 200) {
+                    sendMessage(sender, String.format("ブランチ情報を取得できませんでした: %d", response.code()));
+                    return null;
+                }
+                obj = new JSONObject(Objects.requireNonNull(response.body()).string());
             }
-            JSONObject obj = new JSONObject(Objects.requireNonNull(response.body()).string());
-            response.close();
 
             return obj;
         }catch(IOException e){
