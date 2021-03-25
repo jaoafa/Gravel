@@ -88,24 +88,28 @@ public class Cmd_LoadPlugin extends BukkitRunnable implements CommandExecutor {
             JSONObject info = getRepo(user, repo);
 
             if(info == null){
+                task.cancel();
                 task = null;
                 return;
             }
 
             if(!info.getBoolean("fork")){
                 sendMessage(sender, "指定されたリポジトリ「" + user + "/" + repo + "」はフォークされたリポジトリではありません。");
+                task.cancel();
                 task = null;
                 return;
             }
 
             if(!info.getJSONObject("source").getString("full_name").equals("jaoafa/MyMaid4")){
                 sendMessage(sender, "指定されたリポジトリ「" + user + "/" + repo + "」はjaoafa/MyMaid4からフォークされたリポジトリではありません。");
+                task.cancel();
                 task = null;
                 return;
             }
         }
         JSONObject branchInfo = getRepoBranch(user, repo, branch);
         if(branchInfo == null){
+            task.cancel();
             task = null;
             return;
         }
@@ -140,6 +144,7 @@ public class Cmd_LoadPlugin extends BukkitRunnable implements CommandExecutor {
             boolean isCreatedDir = cloneDir.mkdirs();
             sendMessage(sender, "cloneDirディレクトリの作成に " + (isCreatedDir ? "成功" : "失敗") + " しました。");
             if(!isCreatedDir){
+                task.cancel();
                 task = null;
                 return;
             }
@@ -149,6 +154,16 @@ public class Cmd_LoadPlugin extends BukkitRunnable implements CommandExecutor {
         boolean cloneBool = runCommand(cloneDir, String.format("git clone %s .", githubUrl));
         sendMessage(sender, "GitHubからのクローンに " + (cloneBool ? "成功" : "失敗") + " しました。");
         if(!cloneBool){
+            task.cancel();
+            task = null;
+            return;
+        }
+
+        // チェックアウト
+        boolean checkoutBool = runCommand(cloneDir, String.format("git checkout %s", branch));
+        sendMessage(sender, "ブランチチェックアウトに " + (checkoutBool ? "成功" : "失敗") + " しました。");
+        if(!checkoutBool){
+            task.cancel();
             task = null;
             return;
         }
@@ -157,6 +172,7 @@ public class Cmd_LoadPlugin extends BukkitRunnable implements CommandExecutor {
         boolean buildBool = runCommand(cloneDir, "mvn -Dmaven.repo.local=/papermc/mvnrepositorys clean package");
         sendMessage(sender, "Mavenのビルドに " + (buildBool ? "成功" : "失敗") + " しました。");
         if(!buildBool){
+            task.cancel();
             task = null;
             return;
         }
@@ -166,6 +182,7 @@ public class Cmd_LoadPlugin extends BukkitRunnable implements CommandExecutor {
             .filter(_file -> _file.getName().endsWith(".jar")).max(Comparator.comparingLong(File::length));
         if(!file.isPresent()){
             sendMessage(sender, "jarファイルが見つかりませんでした。");
+            task.cancel();
             task = null;
             return;
         }

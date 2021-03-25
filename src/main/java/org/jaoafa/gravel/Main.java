@@ -48,6 +48,13 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new Event_ReceivedServerChat(), this);
     }
 
+    @Override
+    public void onDisable(){
+        jda.getEventManager().getRegisteredListeners()
+            .forEach(listener -> jda.getEventManager().unregister(listener));
+        jda.shutdownNow();
+    }
+
     public static JavaPlugin getJavaPlugin() {
         return main;
     }
