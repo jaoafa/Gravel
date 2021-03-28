@@ -6,3 +6,7 @@ commands:
   loadplugin:
     description: プラグインをクローン・ビルドし、リロードします。
     usage: '/loadplugin'
+  changeperm:
+    description: あなたの権限グループを変更します。
+    usage: '/changeperm <PermGroup>'
+

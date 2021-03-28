@@ -45,6 +45,7 @@ public final class Main extends JavaPlugin {
         }
 
         Objects.requireNonNull(getCommand("loadplugin")).setExecutor(new Cmd_LoadPlugin());
+        Objects.requireNonNull(getCommand("changeperm")).setExecutor(new Cmd_ChangePerm());
         getServer().getPluginManager().registerEvents(new Event_ReceivedServerChat(), this);
     }
 
