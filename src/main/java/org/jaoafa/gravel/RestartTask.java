@@ -10,6 +10,7 @@ import okhttp3.Response;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.json.JSONObject;
@@ -19,11 +20,9 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RestartTask extends BukkitRunnable {
@@ -162,21 +161,35 @@ public class RestartTask extends BukkitRunnable {
         // 作業ディレクトリを削除
         Path workdir = Paths.get("/papermc/work/");
         try (Stream<Path> walk = Files.walk(workdir, FileVisitOption.FOLLOW_LINKS)) {
-            boolean isDeletedDir = walk.sorted(Comparator.reverseOrder())
+            List<File> missDeletes = walk.sorted(Comparator.reverseOrder())
                 .map(Path::toFile)
-                .allMatch(path -> {
+                .filter(path -> {
                     player.sendActionBar(Component.text(
                         path.getAbsolutePath() + ": " + (path.delete() ? "成功" : "失敗"
                         )));
                     return path.delete();
-                });
-            sendMessage(player, "作業ディレクトリの削除に " + (isDeletedDir ? "成功" : "失敗") + " しました。");
+                })
+                .collect(Collectors.toList());
+            sendMessage(player, "作業ディレクトリの削除に " + (missDeletes.isEmpty() ? "成功" : "失敗") + " しました。");
+            System.out.println("MissDeletes:");
+            System.out.println(missDeletes.stream().map(File::getPath).collect(Collectors.joining("\n")));
         } catch (IOException ie) {
             ie.printStackTrace();
         }
 
         // リロード
         Bukkit.getServer().sendMessage(Component.text("プラグイン再読み込みのため、アップデートします。", NamedTextColor.RED));
+        YamlConfiguration yml = new YamlConfiguration();
+        yml.set("playerName", player.getName());
+        yml.set("user", user);
+        yml.set("repo", repo);
+        yml.set("branch", branch);
+        yml.set("time", System.currentTimeMillis());
+        try {
+            yml.save(Main.stateSaveTo);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Bukkit.reload();
     }
 

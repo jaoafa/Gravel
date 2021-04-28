@@ -4,7 +4,6 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -21,7 +20,7 @@ public class Event_ReceivedServerChat implements Listener {
         Bukkit.getServer().sendMessage(Component.text().append(
             Component.text("[Gravel]"),
             Component.space(),
-            Component.text("ログイン完了:"),
+            Component.text("ログイン完了:", NamedTextColor.GREEN),
             Component.space(),
             Component.text(event.getJDA().getSelfUser().getAsTag(), NamedTextColor.GREEN)
         ));
