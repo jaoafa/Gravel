@@ -1,7 +1,7 @@
 name: Gravel
 version: ${project.version}
 main: org.jaoafa.gravel.Main
-api-version: 1.16
+api-version: 1.18
 softdepend:
   - MyMaid4
 commands:
