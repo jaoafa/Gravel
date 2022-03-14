@@ -79,16 +79,25 @@ public class RestartTask extends BukkitRunnable {
 
         // 作業ディレクトリを削除
         Path dir = Paths.get("/papermc/work/");
-        try (Stream<Path> walk = Files.walk(dir, FileVisitOption.FOLLOW_LINKS)) {
-            walk.sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .forEach(path -> player.sendActionBar(Component.text(
-                    path.getAbsolutePath() + ": " + (path.delete() ? "成功" : "失敗"
-                    ))));
-            boolean isDeletedDir = dir.toFile().delete();
-            sendMessage(player, "作業ディレクトリの削除に " + (isDeletedDir ? "成功" : "失敗") + " しました。");
-        } catch (IOException ie) {
-            ie.printStackTrace();
+        if (Files.exists(dir)) {
+            try (Stream<Path> walk = Files.walk(dir, FileVisitOption.FOLLOW_LINKS)) {
+                walk.sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(path -> player.sendActionBar(Component.text(
+                        path.getAbsolutePath() + ": " + (path.delete() ? "成功" : "失敗"
+                        ))));
+                boolean isDeletedDir = dir.toFile().delete();
+                sendMessage(player, "作業ディレクトリの削除に " + (isDeletedDir ? "成功" : "失敗") + " しました。");
+            } catch (IOException ie) {
+                ie.printStackTrace();
+            }
+        }
+        if (!Files.exists(dir)) {
+            try {
+                Files.createDirectories(dir);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         // クローン
@@ -119,7 +128,7 @@ public class RestartTask extends BukkitRunnable {
         }
 
         // ビルド
-        boolean buildBool = runCommand(cloneDir, "mvn -Dmaven.repo.local=/papermc/mvnrepositorys clean package");
+        boolean buildBool = runCommand(cloneDir, "mvn -B -Dmaven.repo.local=/papermc/mvnrepositorys clean package");
         sendMessage(player, "Mavenのビルドに " + (buildBool ? "成功" : "失敗") + " しました。");
         if (!buildBool) {
             this.cancel();
@@ -178,7 +187,7 @@ public class RestartTask extends BukkitRunnable {
         }
 
         // リロード
-        Bukkit.getServer().sendMessage(Component.text("プラグイン再読み込みのため、アップデートします。", NamedTextColor.RED));
+        Bukkit.getServer().sendMessage(Component.text("プラグイン再読み込みのため、リロードします。", NamedTextColor.RED));
         YamlConfiguration yml = new YamlConfiguration();
         yml.set("playerName", player.getName());
         yml.set("user", user);
