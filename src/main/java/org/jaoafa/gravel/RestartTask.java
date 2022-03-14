@@ -144,7 +144,7 @@ public class RestartTask extends BukkitRunnable {
         }
         Optional<File> file = Arrays.stream(files)
             .filter(_file -> _file.getName().endsWith(".jar")).max(Comparator.comparingLong(File::length));
-        if (!file.isPresent()) {
+        if (file.isEmpty()) {
             sendMessage(player, "jarファイルが見つかりませんでした。");
             this.cancel();
             return;
@@ -177,8 +177,7 @@ public class RestartTask extends BukkitRunnable {
                         path.getAbsolutePath() + ": " + (path.delete() ? "成功" : "失敗"
                         )));
                     return path.delete();
-                })
-                .collect(Collectors.toList());
+                }).toList();
             sendMessage(player, "作業ディレクトリの削除に " + (missDeletes.isEmpty() ? "成功" : "失敗") + " しました。");
             System.out.println("MissDeletes:");
             System.out.println(missDeletes.stream().map(File::getPath).collect(Collectors.joining("\n")));

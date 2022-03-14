@@ -2,7 +2,6 @@ package org.jaoafa.gravel;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.hooks.AnnotatedEventManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -60,8 +59,7 @@ public final class Main extends JavaPlugin implements Listener {
                 // .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES)
                 .setAutoReconnect(true)
                 .setBulkDeleteSplittingEnabled(false)
-                .setContextEnabled(false)
-                .setEventManager(new AnnotatedEventManager());
+                .setContextEnabled(false);
 
             jdabuilder.addEventListeners(new Event_ReceivedServerChat());
 
