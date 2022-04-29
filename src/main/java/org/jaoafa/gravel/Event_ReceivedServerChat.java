@@ -11,7 +11,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public class Event_ReceivedServerChat extends ListenerAdapter implements Listener {
@@ -54,9 +54,9 @@ public class Event_ReceivedServerChat extends ListenerAdapter implements Listene
     }
 
     @EventHandler
-    public void onLogin(PlayerLoginEvent event){
+    public void onLogin(PlayerJoinEvent event) {
         TextChannel channel = Main.getJDA().getTextChannelById(823229253637373962L);
-        if(channel == null){
+        if (channel == null) {
             return;
         }
         channel.sendMessage("`" + event.getPlayer().getName() + "` がログインしました。").queue();
